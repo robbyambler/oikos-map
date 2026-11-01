@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Person } from "@/lib/people";
 import MapView from "@/components/MapView";
 import Shape, { LetterDot, Legend } from "@/components/Shape";
+import AppBar from "@/components/AppBar";
+import { ArrowLeftIcon, ArrowRightIcon, LockIcon } from "@/components/Icons";
 
 // A short, static walkthrough for people new to the idea of an oikos map.
 // It never reads or writes the visitor's saved map; the example below uses made-up people.
@@ -35,61 +37,75 @@ const BLESS = [
   { letter: "S", word: "Share", line: "When the moment is right, tell them what Jesus has done for you.", link: true },
 ];
 
-const STEP_COLORS = ["#2F7A78", "#8A3B6E", "#9A6400", "#3B5BA9", "#B0413E"];
-
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
-    <li className="sketch-card bg-white p-5 sm:p-6">
-      <h2 className="flex items-center gap-3 font-display text-2xl font-bold leading-tight sm:text-3xl">
-        <LetterDot letter={String(n)} color={STEP_COLORS[n - 1]} seed={"step" + n} />
-        <span>
+    <li className="group relative grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-4 pb-12 last:pb-0 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-x-6">
+      {/* The thin line that joins one step to the next */}
+      <span aria-hidden="true" className="absolute bottom-0 left-5 top-12 w-px bg-line sm:left-6 sm:top-14 group-last:hidden" />
+      <span
+        aria-hidden="true"
+        className="flex size-10 items-center justify-center rounded-full bg-accent font-display text-lg font-bold text-on-accent sm:size-12 sm:text-xl"
+      >
+        {n}
+      </span>
+      <div className="min-w-0 pt-1.5 sm:pt-2.5">
+        <h2 className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-[1.75rem]">
           <span className="sr-only">Step {n}: </span>
           {title}
-        </span>
-      </h2>
-      <div className="mt-3 space-y-3 text-lg leading-relaxed">{children}</div>
+        </h2>
+        <div className="mt-3 space-y-4 text-lg leading-relaxed">{children}</div>
+      </div>
     </li>
   );
 }
 
 export default function LearnPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:py-10">
-      <nav className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/" className="font-semibold text-ink underline underline-offset-2">
-          <span aria-hidden="true">← </span>Back to my map
+    <>
+    <AppBar />
+    <main className="mx-auto w-full max-w-3xl px-4 pb-16 pt-6 sm:pt-10">
+      <nav aria-label="Page" className="no-print flex flex-wrap items-center justify-between gap-3">
+        <Link href="/" className="btn btn-ghost btn-sm -ml-3">
+          <ArrowLeftIcon size={18} />
+          Back to my map
         </Link>
-        <Link href="/" className="btn-quiet text-sm">
+        <Link href="/" className="btn btn-secondary btn-sm">
           Start my map
         </Link>
       </nav>
 
-      <header className="squiggle-bottom mt-6 pb-5">
-        <h1 className="font-display text-4xl font-bold leading-[1.1] sm:text-5xl">How an oikos map works</h1>
-        <p className="mt-3 text-lg leading-relaxed text-ink-soft">
+      <header className="mt-6">
+        <h1 className="font-display text-[2.4rem] font-bold leading-[1.05] tracking-[-0.025em] sm:text-6xl">
+          How an oikos map works
+        </h1>
+        <p className="mt-4 text-xl leading-relaxed text-ink-muted">
           Five short steps. No experience needed, and there are no wrong answers.
         </p>
       </header>
 
-      <figure className="sketch-card mt-8 bg-white p-4 sm:p-6">
-        <div className="mx-auto max-w-md">
-          <MapView people={EXAMPLE} fit title={EXAMPLE_DESCRIPTION} />
+      <figure className="card mt-10 overflow-hidden">
+        <div className="bg-[var(--map-bg)] p-4 sm:p-6">
+          <div className="mx-auto max-w-md">
+            <MapView people={EXAMPLE} fit title={EXAMPLE_DESCRIPTION} />
+          </div>
         </div>
-        <figcaption className="mt-3 space-y-3">
-          <p className="text-center text-sm text-ink-soft">An example map for Jamie, with made-up people. Yours will have your name in the middle.</p>
+        <figcaption className="space-y-3 border-t border-line bg-sunken px-4 py-4 sm:px-6">
+          <p className="text-sm text-ink-muted">
+            An example map for Jamie, with made-up people. Yours will have your name in the middle.
+          </p>
           <Legend />
         </figcaption>
       </figure>
 
-      <ol className="mt-8 space-y-5">
+      <ol className="mt-14">
         <Step n={1} title="What's an oikos?">
           <p>
             <em>Oikos</em> is the Greek word for household: the family, friends, and neighbors God has already put in
             your everyday life.
           </p>
-          <blockquote className="sketch-box bg-mist px-4 py-3">
+          <blockquote className="rounded-xl bg-sunken px-5 py-4 font-display text-xl font-semibold leading-snug tracking-tight">
             &ldquo;Believe in the Lord Jesus, and you will be saved, you and your household.&rdquo;
-            <span className="mt-1 block text-base text-ink-soft">Acts 16:31 (ESV)</span>
+            <span className="mt-2 block font-sans text-base font-normal tracking-normal text-ink-muted">Acts 16:31 (ESV)</span>
           </blockquote>
           <p>The good news has always traveled through ordinary relationships. Yours included.</p>
           <p>
@@ -102,7 +118,7 @@ export default function LearnPage() {
         <Step n={2} title="Start with you">
           <p className="flex items-start gap-3">
             <span className="mt-1">
-              <Shape kind="nonbeliever" color="#1F2A2E" size={22} seed="learn-you" />
+              <Shape kind="nonbeliever" color="var(--map-root)" size={22} filled />
             </span>
             <span>
               You&apos;re the circle in the middle. Just type your name. Everything else on the map grows out from
@@ -116,7 +132,7 @@ export default function LearnPage() {
           <ul className="space-y-2">
             <li className="flex items-start gap-3">
               <span className="mt-1">
-                <Shape kind="believer" color="#8A3B6E" size={22} seed="learn-sq" />
+                <Shape kind="believer" color="var(--branch-2)" size={22} />
               </span>
               <span>
                 <strong>Square:</strong> someone who already follows Jesus. Train them, and they can start reaching their own oikos right away.
@@ -124,14 +140,14 @@ export default function LearnPage() {
             </li>
             <li className="flex items-start gap-3">
               <span className="mt-1">
-                <Shape kind="nonbeliever" color="#2F7A78" size={22} seed="learn-ci" />
+                <Shape kind="nonbeliever" color="var(--branch-1)" size={22} />
               </span>
               <span>
                 <strong>Circle:</strong> someone who doesn&apos;t yet follow Jesus.
               </span>
             </li>
           </ul>
-          <div className="sketch-box border-2 border-dashed border-pencil/50 bg-mist px-4 py-3">
+          <div className="callout px-5 py-4">
             <p className="font-semibold">Not sure who to add? Think through:</p>
             <p>
               <strong>F</strong>riends, <strong>R</strong>elatives, <strong>A</strong>cquaintances,{" "}
@@ -153,13 +169,13 @@ export default function LearnPage() {
           <ul className="space-y-3">
             {BLESS.map((b, i) => (
               <li key={i} className="flex items-start gap-3">
-                <LetterDot letter={b.letter} color="#1F2A2E" seed={"learn-bless" + i} />
-                <span>
+                <LetterDot letter={b.letter} />
+                <span className="pt-0.5">
                   <strong>{b.word}.</strong> {b.line}
                   {b.link && (
                     <>
                       {" "}
-                      <Link href="/share" className="no-print font-semibold text-ink underline underline-offset-2">
+                      <Link href="/share" className="link no-print">
                         See a simple way to share
                       </Link>
                     </>
@@ -176,20 +192,22 @@ export default function LearnPage() {
         </Step>
       </ol>
 
-      <section className="mt-8 space-y-4 text-center">
-        <p className="text-ink-soft">
-          <span aria-hidden="true">🔒 </span>
-          Your map stays on your device. Nothing is sent anywhere. You can print it, or save a copy as a file.
+      <section className="mt-16 rounded-2xl bg-sunken px-5 py-8 text-center sm:px-10">
+        <p className="mx-auto flex max-w-xl items-start justify-center gap-2 text-left leading-relaxed text-ink-muted sm:text-center">
+          <LockIcon size={18} className="mt-1 shrink-0 text-accent-ink" />
+          <span>Your map stays on your device. Nothing is sent anywhere. You can print it, or save a copy as a file.</span>
         </p>
-        <p className="text-sm text-ink-soft">
+        <Link href="/" className="btn btn-primary btn-lg mt-6">
+          Start my map
+          <ArrowRightIcon size={20} />
+        </Link>
+      </section>
+      <p className="mt-8 text-center text-sm leading-relaxed text-ink-muted">
           Scripture quotations marked ESV are from the ESV&reg; Bible (The Holy Bible, English Standard Version&reg;),
           &copy; 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights
           reserved.
-        </p>
-        <Link href="/" className="btn-primary inline-block px-8 py-4 font-display text-2xl">
-          Start my map
-        </Link>
-      </section>
+      </p>
     </main>
+    </>
   );
 }

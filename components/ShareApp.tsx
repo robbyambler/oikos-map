@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { APP_URL } from "@/lib/appUrl";
 import { SHARE_APP as T } from "@/lib/appShareContent";
 import QrCode from "./QrCode";
+import { CopyIcon, PrintIcon, QrIcon, ShareIcon } from "./Icons";
 
 // "Share this app" button plus a "Show QR code" button. Only ever shares the
 // plain app link (APP_URL), never anything from the visitor's map.
@@ -13,7 +14,7 @@ export default function ShareApp({ small = false }: { small?: boolean }) {
   const [copyFailed, setCopyFailed] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const qrButton = useRef<HTMLButtonElement>(null);
-  const size = small ? "text-sm" : "text-base";
+  const style = small ? "btn btn-ghost btn-sm" : "btn btn-secondary";
 
   async function copyLink(): Promise<boolean> {
     try {
@@ -45,10 +46,12 @@ export default function ShareApp({ small = false }: { small?: boolean }) {
   return (
     <>
       <span className="no-print inline-flex flex-wrap items-center gap-2">
-        <button type="button" onClick={share} className={`btn-quiet ${size}`}>
+        <button type="button" onClick={share} className={style}>
+          <ShareIcon size={18} />
           {T.button}
         </button>
-        <button ref={qrButton} type="button" onClick={() => setQrOpen(true)} className={`btn-quiet ${size}`}>
+        <button ref={qrButton} type="button" onClick={() => setQrOpen(true)} className={style}>
+          <QrIcon size={18} />
           {T.qrButton}
         </button>
       </span>
@@ -61,7 +64,7 @@ export default function ShareApp({ small = false }: { small?: boolean }) {
           aria-label={T.linkLabel}
           value={APP_URL}
           onFocus={(e) => e.currentTarget.select()}
-          className="no-print w-full max-w-md border-2 border-ink-soft bg-white px-3 py-1.5 text-sm"
+          className="field no-print max-w-md text-sm"
         />
       )}
       {qrOpen &&
@@ -108,31 +111,34 @@ function QrDialog({
       ref={dialog}
       onClose={onClose}
       aria-labelledby="qr-title"
-      className="qr-dialog sketch-card m-auto w-[min(92vw,26rem)] bg-white p-5 text-ink backdrop:bg-black/40"
+      className="qr-dialog dialog m-auto w-[min(92vw,27rem)] rounded-2xl border border-line bg-surface p-6 text-ink shadow-dialog"
     >
-      <h2 id="qr-title" className="font-display text-2xl font-bold">
+      <h2 id="qr-title" className="font-display text-2xl font-bold tracking-tight">
         {T.dialogTitle}
       </h2>
-      <p className="mt-1 text-ink-soft">{T.dialogIntro}</p>
-      <div className="mx-auto mt-4 w-full max-w-xs">
+      <p className="mt-1.5 leading-relaxed text-ink-muted">{T.dialogIntro}</p>
+      {/* The code always sits on white, in both themes, so every phone can scan it. */}
+      <div className="mx-auto mt-5 w-full max-w-[17rem] rounded-xl bg-white p-2 ring-1 ring-line">
         <QrCode value={APP_URL} label={T.qrLabel(APP_URL)} />
       </div>
-      <p className="mt-2 break-all text-center font-semibold" data-testid="qr-url">
+      <p className="mt-3 break-all text-center font-semibold" data-testid="qr-url">
         {APP_URL}
       </p>
-      <p className="mt-3 text-sm text-ink-soft">{T.privacyNote}</p>
-      <div className="no-print mt-4 flex flex-wrap items-center gap-2">
-        <button type="button" onClick={copyLink} className="btn-quiet text-sm">
+      <p className="mt-3 text-sm leading-relaxed text-ink-muted">{T.privacyNote}</p>
+      <div className="no-print mt-5 flex flex-wrap items-center gap-2">
+        <button type="button" onClick={copyLink} className="btn btn-secondary btn-sm">
+          <CopyIcon size={18} />
           {T.copyButton}
         </button>
-        <button type="button" onClick={print} className="btn-quiet text-sm">
+        <button type="button" onClick={print} className="btn btn-secondary btn-sm">
+          <PrintIcon size={18} />
           {T.printButton}
         </button>
-        <button type="button" onClick={() => dialog.current?.close()} className="btn-primary text-sm">
+        <button type="button" onClick={() => dialog.current?.close()} className="btn btn-primary btn-sm sm:ml-auto">
           {T.closeButton}
         </button>
       </div>
-      <p role="status" aria-live="polite" className="no-print mt-2 text-sm">
+      <p role="status" aria-live="polite" className="no-print mt-2 min-h-5 text-sm text-ink-muted">
         {copiedMessage}
       </p>
     </dialog>

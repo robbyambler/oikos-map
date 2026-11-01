@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
+  BRANCH_COLORS,
   Kind,
   Person,
+  ROOT_COLOR,
   branchColor,
   childrenOf,
   describe,
@@ -13,7 +15,6 @@ import {
   makeId,
   shapeOf,
 } from "@/lib/people";
-import { sketchLine } from "@/lib/sketch";
 import { loadPeople, savePeople } from "@/lib/storage";
 import { downloadBackup, readBackup } from "@/lib/backup";
 import MapView from "./MapView";
@@ -21,13 +22,27 @@ import ListView from "./ListView";
 import PersonForm from "./PersonForm";
 import BlessCard from "./BlessCard";
 import ShareApp from "./ShareApp";
-import Shape, { Legend, SketchShape } from "./Shape";
+import AppBar from "./AppBar";
+import Shape, { Legend } from "./Shape";
+import {
+  DownloadIcon,
+  ExpandIcon,
+  ListIcon,
+  LockIcon,
+  MapIcon,
+  PencilIcon,
+  PlusIcon,
+  PrintIcon,
+  ShrinkIcon,
+  TrashIcon,
+  UploadIcon,
+} from "./Icons";
 
 type Mode = "view" | "add" | "edit";
 
 function FrancHint({ name }: { name: string }) {
   return (
-    <div className="sketch-box border-2 border-dashed border-pencil/50 bg-mist px-3 py-2.5 text-sm leading-relaxed">
+    <div className="callout px-4 py-3 text-[0.95rem] leading-relaxed">
       <p className="font-semibold">Stuck? Think through {name}&apos;s world:</p>
       <p>
         <strong>F</strong>riends, <strong>R</strong>elatives, <strong>A</strong>cquaintances,{" "}
@@ -171,20 +186,22 @@ export default function OikosApp() {
   );
 
   const fileErrorNote = fileError && (
-    <p role="alert" className="sketch-box bg-[#FCEBDD] px-3 py-2 text-sm">
+    <p role="alert" className="notice px-3.5 py-2.5 text-sm">
       {fileError}
     </p>
   );
 
   const privacyNote = (
-    <p className="text-sm text-ink-soft">
-      <span aria-hidden="true">🔒 </span>
-      Your map is saved only in this browser, on this device. Nothing is sent anywhere, and no one else can see it.
+    <p className="flex items-start gap-2 text-sm leading-relaxed text-ink-muted">
+      <LockIcon size={16} className="mt-0.5 shrink-0 text-accent-ink" />
+      <span>
+        Your map is saved only in this browser, on this device. Nothing is sent anywhere, and no one else can see it.
+      </span>
     </p>
   );
 
   const storageWarning = !storageOk && (
-    <p role="status" className="sketch-box bg-[#FCEBDD] px-3 py-2 text-sm">
+    <p role="status" className="notice px-3.5 py-2.5 text-sm">
       This browser isn&apos;t letting us save, so your map will disappear when you close this tab. Print it before you
       go if you&apos;d like to keep it.
     </p>
@@ -193,146 +210,153 @@ export default function OikosApp() {
   // ---------- Welcome: no one on the map yet ----------
   if (!root) {
     return (
-      <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-16">
-        <div className="grid items-center gap-8 sm:grid-cols-[1fr_200px]">
-          <div>
-            <h1 className="font-display text-4xl font-bold leading-[1.1] sm:text-5xl">
-              Map the people God has put around you.
-            </h1>
-            <p className="mt-5 max-w-prose text-lg leading-relaxed">
-              <em>Oikos</em> is the Greek word for household: the family, friends, and neighbors in your everyday
-              life. When Paul told a jailer, &ldquo;Believe in the Lord Jesus, and you will be saved, you and your
-              household&rdquo; (Acts 16:31, ESV), the good news was meant to travel through his whole oikos.
-            </p>
-            <p className="mt-3 max-w-prose text-lg leading-relaxed">
-              And everyone you know has an oikos of their own, one that only they can reach.
-            </p>
+      <>
+        <AppBar />
+        <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:pt-14">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:gap-14">
+            <div className="max-w-[38rem]">
+              <h1 className="font-display text-[2.4rem] font-bold leading-[1.05] tracking-[-0.025em] sm:text-6xl">
+                Map the people God has put around you.
+              </h1>
+              <p className="mt-6 text-lg leading-relaxed">
+                <em>Oikos</em> is the Greek word for household: the family, friends, and neighbors in your everyday
+                life. When Paul told a jailer, &ldquo;Believe in the Lord Jesus, and you will be saved, you and your
+                household&rdquo; (Acts 16:31, ESV), the good news was meant to travel through his whole oikos.
+              </p>
+              <p className="mt-4 text-lg leading-relaxed">
+                And everyone you know has an oikos of their own, one that only they can reach.
+              </p>
+
+              <div className="no-print mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+                <Link href="/learn" className="btn btn-secondary">
+                  How does this work?
+                </Link>
+                <Link href="/share" className="link">
+                  What do I say? See a simple way to share
+                </Link>
+              </div>
+            </div>
+
+            <div className="card overflow-hidden">
+              <WelcomeIllustration />
+              <div className="p-5 sm:p-7">
+                <p className="mb-5 leading-relaxed text-ink-muted">
+                  You go in the middle. Then you&apos;ll add the people in your life, and the people in theirs. It
+                  takes a few minutes.
+                </p>
+                <PersonForm
+                  heading="Start with you"
+                  submitLabel="Put me on the map"
+                  nameLabel="Your name"
+                  askKind={false}
+                  onSubmit={addRoot}
+                />
+              </div>
+            </div>
           </div>
-          <WelcomeSketch />
-        </div>
 
-        <div className="no-print mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <Link href="/learn" className="btn-quiet inline-block border-ink text-lg">
-            How does this work?
-          </Link>
-          <Link href="/share" className="font-semibold text-ink underline underline-offset-2">
-            What do I say? See a simple way to share
-          </Link>
-          <ShareApp />
-        </div>
-
-        <div className="sketch-card mt-10 bg-white p-5 sm:p-7">
-          <p className="mb-4 text-ink-soft">
-            You go in the middle. Then you&apos;ll add the people in your life, and the people in theirs. It takes a few
-            minutes.
-          </p>
-          <PersonForm
-            heading="Start with you"
-            submitLabel="Put me on the map"
-            nameLabel="Your name"
-            askKind={false}
-            onSubmit={addRoot}
-          />
-        </div>
-        <div className="mt-6 space-y-2">
-          {privacyNote}
-          {storageWarning}
-          <p className="text-sm text-ink-soft">
-            Already saved a copy of your map?{" "}
-            <button type="button" onClick={chooseFile} className="font-semibold text-ink underline underline-offset-2">
-              Open a saved copy
-            </button>
-          </p>
-          {fileErrorNote}
-          {filePicker}
+          <div className="mt-12 grid gap-6 border-t border-line pt-6 sm:grid-cols-2">
+            <div className="space-y-3">
+              {privacyNote}
+              {storageWarning}
+              <p className="text-sm text-ink-muted">
+                Already saved a copy of your map?{" "}
+                <button type="button" onClick={chooseFile} className="link">
+                  Open a saved copy
+                </button>
+              </p>
+              {fileErrorNote}
+              {filePicker}
+            </div>
+            <div className="sm:justify-self-end">
+              <p className="mb-2 text-sm text-ink-muted">Know someone who&apos;d use this?</p>
+              <ShareApp small />
+            </div>
+          </div>
           <p aria-live="polite" className="sr-only">
             {announcement}
           </p>
-        </div>
-      </main>
+        </main>
+      </>
     );
   }
 
   // ---------- The map builder ----------
-  const selectedColor = selected ? branchColor(people, selected) : "#1F2A2E";
+  const selectedColor = selected ? branchColor(people, selected) : ROOT_COLOR;
   const isRoot = selected?.parentId === null;
   const others = people.length - 1;
+  const connected = selected ? childrenOf(people, selected.id).length : 0;
 
   return (
     <>
       <div className="no-print flex min-h-full flex-col">
-        <header className="squiggle-bottom bg-paper/90 px-4 pb-4 pt-3">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+        <AppBar />
+        <div className="mx-auto w-full max-w-6xl px-4 pt-6">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="font-display text-3xl font-bold leading-tight">Your oikos map</h1>
-              <p className="text-sm text-ink-soft">
+              <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Your oikos map</h1>
+              <p className="mt-1 text-ink-muted">
                 {others === 0
                   ? "Just you so far. Let's add some people."
                   : `You and ${others} ${others === 1 ? "person" : "people"} God has placed around you.`}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <div role="group" aria-label="Choose a view" className="sketch-pill flex border-2 border-pencil/40 bg-mist p-1">
+              <div role="group" aria-label="Choose a view" className="segmented">
                 {(["map", "list"] as const).map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    aria-pressed={view === v}
-                    onClick={() => setView(v)}
-                    className={`sketch-pill px-4 py-1.5 text-sm font-semibold ${
-                      view === v ? "bg-ink text-white" : "text-ink"
-                    }`}
-                  >
+                  <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}>
+                    {v === "map" ? <MapIcon size={18} /> : <ListIcon size={18} />}
                     {v === "map" ? "Map" : "List"}
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={() => window.print()} className="btn-quiet">
+              <button type="button" onClick={() => window.print()} className="btn btn-secondary">
+                <PrintIcon size={18} />
                 Print map
               </button>
             </div>
           </div>
-          <div className="mx-auto mt-3 flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-2">
-            <button type="button" onClick={saveCopy} className="btn-quiet text-sm">
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-1 gap-y-1 border-y border-line py-1.5">
+            <button type="button" onClick={saveCopy} className="btn btn-ghost btn-sm">
+              <DownloadIcon size={18} />
               Save a copy
             </button>
-            <button type="button" onClick={chooseFile} className="btn-quiet text-sm">
+            <button type="button" onClick={chooseFile} className="btn btn-ghost btn-sm">
+              <UploadIcon size={18} />
               Open a saved copy
             </button>
             {filePicker}
-            <p className="text-sm text-ink-soft">The file stays on your device.</p>
-            <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1">
-              <Link href="/learn" className="text-sm font-semibold text-ink underline underline-offset-2">
-                How does this work?
-              </Link>
-              <Link href="/share" className="text-sm font-semibold text-ink underline underline-offset-2">
-                What to share
-              </Link>
+            <p className="px-2 text-sm text-ink-muted">The file stays on your device.</p>
+            <div className="sm:ml-auto">
               <ShareApp small />
             </div>
           </div>
-          {fileError && <div className="mx-auto mt-3 max-w-6xl">{fileErrorNote}</div>}
-        </header>
+          {fileError && <div className="mt-3">{fileErrorNote}</div>}
+        </div>
 
-        <main className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-6 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <main className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_380px]">
           <section aria-label={view === "map" ? "Map" : "List"} className="min-w-0">
             {view === "map" ? (
               <>
-                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm text-ink-soft">Tap or tab to anyone on the map to see their details.</p>
-                  <button type="button" onClick={() => setFit(!fit)} className="btn-quiet text-sm">
-                    {fit ? "Show actual size" : "Fit to screen"}
-                  </button>
+                <div className="card overflow-hidden">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line py-1.5 pl-4 pr-1.5">
+                    <p className="text-sm text-ink-muted">Tap or tab to anyone on the map to see their details.</p>
+                    <button type="button" onClick={() => setFit(!fit)} className="btn btn-ghost btn-sm">
+                      {fit ? <ExpandIcon size={18} /> : <ShrinkIcon size={18} />}
+                      {fit ? "Show actual size" : "Fit to screen"}
+                    </button>
+                  </div>
+                  <div className="overflow-auto bg-[var(--map-bg)] p-2" style={{ maxHeight: fit ? undefined : "75vh" }}>
+                    <MapView people={people} selectedId={selected?.id} onSelect={select} fit={fit} />
+                  </div>
                 </div>
-                <div className="sketch-card overflow-auto bg-white" style={{ maxHeight: fit ? undefined : "75vh" }}>
-                  <MapView people={people} selectedId={selected?.id} onSelect={select} fit={fit} />
-                </div>
-                <div className="mt-3">
+                <div className="mt-4 px-1">
                   <Legend />
                 </div>
               </>
             ) : (
-              <div className="sketch-card bg-white p-3">
+              <div className="card p-2 sm:p-3">
                 <ListView people={people} selectedId={selected?.id ?? null} onSelect={select} />
               </div>
             )}
@@ -340,32 +364,39 @@ export default function OikosApp() {
 
           {selected && (
             <aside aria-label="Selected person" className="min-w-0 space-y-4">
-              <div className="sketch-card border-pencil/40 bg-paper-deep p-5">
-                <div className="flex items-center gap-3">
-                  <Shape kind={shapeOf(selected)} color={selectedColor} size={36} seed={selected.id} />
+              <div className="card p-5">
+                <div className="flex items-center gap-3.5">
+                  <span
+                    className="flex size-12 shrink-0 items-center justify-center rounded-xl"
+                    style={{ background: `color-mix(in srgb, ${selectedColor} 13%, var(--surface))` }}
+                  >
+                    <Shape kind={shapeOf(selected)} color={selectedColor} size={26} filled={isRoot} />
+                  </span>
                   <div className="min-w-0">
-                    <h2 className="font-display truncate text-3xl font-bold leading-tight">
+                    <h2 className="truncate font-display text-2xl font-bold leading-tight tracking-tight">
                       {selected.name}
-                      {isRoot && <span className="font-normal text-ink-soft"> (you)</span>}
+                      {isRoot && <span className="font-normal text-ink-muted"> (you)</span>}
                     </h2>
-                    <p className="text-sm text-ink-soft">
+                    <p className="text-sm text-ink-muted">
                       {describe(selected)}
-                      {childrenOf(people, selected.id).length > 0 &&
-                        ` · ${childrenOf(people, selected.id).length} connected`}
+                      {connected > 0 && ` · ${connected} connected`}
                     </p>
                   </div>
                 </div>
 
                 {mode === "view" && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => setMode("add")} className="btn-primary">
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setMode("add")} className="btn btn-primary w-full">
+                      <PlusIcon size={18} />
                       Add someone connected to {isRoot ? "you" : selected.name.split(" ")[0]}
                     </button>
-                    <button type="button" onClick={() => setMode("edit")} className="btn-quiet">
+                    <button type="button" onClick={() => setMode("edit")} className="btn btn-secondary flex-1">
+                      <PencilIcon size={18} />
                       Edit
                     </button>
                     {!isRoot && (
-                      <button type="button" onClick={removePerson} className="btn-quiet text-[#9B2C2C]">
+                      <button type="button" onClick={removePerson} className="btn btn-danger flex-1">
+                        <TrashIcon size={18} />
                         Remove
                       </button>
                     )}
@@ -373,7 +404,7 @@ export default function OikosApp() {
                 )}
 
                 {mode === "add" && (
-                  <div className="mt-5">
+                  <div className="mt-5 border-t border-line pt-5">
                     <PersonForm
                       key={"add-" + selected.id}
                       heading={isRoot ? "Who's in your life?" : `Who's in ${selected.name.split(" ")[0]}'s life?`}
@@ -383,14 +414,14 @@ export default function OikosApp() {
                       onSubmit={addPerson}
                       onCancel={() => setMode("view")}
                     />
-                    <p className="mt-3 text-sm text-ink-soft">
+                    <p className="mt-3 text-sm text-ink-muted">
                       Add as many as you like. Press Cancel when you&apos;re done.
                     </p>
                   </div>
                 )}
 
                 {mode === "edit" && (
-                  <div className="mt-5">
+                  <div className="mt-5 border-t border-line pt-5">
                     <PersonForm
                       key={"edit-" + selected.id}
                       heading={`Edit ${selected.name}`}
@@ -408,7 +439,7 @@ export default function OikosApp() {
 
               {!isRoot && mode === "view" && <BlessCard person={selected} color={selectedColor} />}
               {isRoot && mode === "view" && others === 0 && (
-                <p className="px-1 text-ink-soft">
+                <p className="px-1 leading-relaxed text-ink-muted">
                   Start with the people closest to you. Later you can add the people in <em>their</em> lives too.
                 </p>
               )}
@@ -416,12 +447,16 @@ export default function OikosApp() {
           )}
         </main>
 
-        <footer className="mx-auto w-full max-w-6xl space-y-2 px-4 pb-8 pt-2">
-          {privacyNote}
-          {storageWarning}
-          <button type="button" onClick={startOver} className="text-sm text-ink-soft underline underline-offset-2">
-            Clear map and start over
-          </button>
+        <footer className="mx-auto w-full max-w-6xl px-4 pb-10">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-t border-line pt-5">
+            <div className="max-w-xl space-y-2">
+              {privacyNote}
+              {storageWarning}
+            </div>
+            <button type="button" onClick={startOver} className="btn btn-ghost btn-sm -mr-2 text-danger">
+              Clear map and start over
+            </button>
+          </div>
         </footer>
         <p aria-live="polite" className="sr-only">
           {announcement}
@@ -440,40 +475,66 @@ export default function OikosApp() {
   );
 }
 
-// A little hand-drawn map for the welcome screen: you in the middle, people around you.
-function WelcomeSketch() {
-  const people = [
-    { x: 0, y: -58, c: "#2F7A78", k: "nonbeliever", from: -1 },
-    { x: 54, y: 24, c: "#8A3B6E", k: "believer", from: -1 },
-    { x: -50, y: 30, c: "#9A6400", k: "nonbeliever", from: -1 },
-    { x: 40, y: -88, c: "#2F7A78", k: "believer", from: 0 },
-    { x: -36, y: -96, c: "#2F7A78", k: "nonbeliever", from: 0 },
-    { x: 92, y: 62, c: "#8A3B6E", k: "nonbeliever", from: 1 },
-    { x: -92, y: 52, c: "#9A6400", k: "nonbeliever", from: 2 },
-    { x: -58, y: 86, c: "#9A6400", k: "believer", from: 2 },
+// A clean drawing for the welcome screen: you in the middle, your people around
+// you, and their people beyond. (The real map is hand-drawn; this is just a sign.)
+function WelcomeIllustration() {
+  const [teal, plum, ochre, blue] = BRANCH_COLORS;
+  const ring = [
+    { x: 92, y: 62, c: teal, k: "nonbeliever" },
+    { x: 238, y: 52, c: plum, k: "believer" },
+    { x: 262, y: 138, c: ochre, k: "nonbeliever" },
+    { x: 84, y: 146, c: blue, k: "believer" },
   ] as const;
+  const outer = [
+    { x: 38, y: 34, from: 0, k: "believer" },
+    { x: 124, y: 22, from: 0, k: "nonbeliever" },
+    { x: 290, y: 24, from: 1, k: "nonbeliever" },
+    { x: 306, y: 92, from: 1, k: "nonbeliever" },
+    { x: 214, y: 172, from: 2, k: "believer" },
+    { x: 30, y: 118, from: 3, k: "nonbeliever" },
+    { x: 44, y: 178, from: 3, k: "nonbeliever" },
+  ] as const;
+  const cx = 165;
+  const cy = 98;
+
+  const node = (x: number, y: number, k: Kind, color: string, r: number) =>
+    k === "believer" ? (
+      <rect x={x - r} y={y - r} width={r * 2} height={r * 2} rx={r * 0.3} strokeWidth="2.25" style={{ stroke: color, fill: "var(--surface)" }} />
+    ) : (
+      <circle cx={x} cy={y} r={r} strokeWidth="2.25" style={{ stroke: color, fill: "var(--surface)" }} />
+    );
+
   return (
-    <svg viewBox="-115 -115 230 225" className="hidden w-full sm:block" aria-hidden="true">
-      {people.map((p, i) => {
-        const from = p.from === -1 ? { x: 0, y: 0 } : people[p.from];
-        return (
-          <path
-            key={"l" + i}
-            d={sketchLine([from.x, from.y], [p.x, p.y], "welcome" + i)}
-            fill="none"
-            stroke={p.c}
-            strokeOpacity="0.55"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-          />
-        );
-      })}
-      {people.map((p, i) => (
-        <g key={i} transform={`translate(${p.x} ${p.y}) rotate(${(i % 3) * 7 - 7})`}>
-          <SketchShape kind={p.k as Kind} size={i < 3 ? 20 : 16} color={p.c} strokeWidth={2.8} seed={"welcome" + i} />
+    <div className="border-b border-line bg-sunken">
+      <svg viewBox="0 0 340 200" aria-hidden="true" className="mx-auto block h-auto w-full max-w-md">
+        <g strokeWidth="1.5" strokeLinecap="round" opacity="0.6">
+          {ring.map((p, i) => (
+            <line key={"r" + i} x1={cx} y1={cy} x2={p.x} y2={p.y} style={{ stroke: p.c }} />
+          ))}
+          {outer.map((p, i) => (
+            <line key={"o" + i} x1={ring[p.from].x} y1={ring[p.from].y} x2={p.x} y2={p.y} style={{ stroke: ring[p.from].c }} />
+          ))}
         </g>
-      ))}
-      <SketchShape kind="nonbeliever" size={32} color="#1F2A2E" fill="#1F2A2E" strokeWidth={3} seed="welcome-you" />
-    </svg>
+        {outer.map((p, i) => (
+          <g key={"on" + i}>{node(p.x, p.y, p.k, ring[p.from].c, 7)}</g>
+        ))}
+        {ring.map((p, i) => (
+          <g key={"rn" + i}>{node(p.x, p.y, p.k, p.c, 11)}</g>
+        ))}
+        <circle cx={cx} cy={cy} r="24" style={{ fill: "var(--accent-soft)" }} />
+        <circle cx={cx} cy={cy} r="15" style={{ fill: "var(--accent)" }} />
+        <text
+          x={cx}
+          y={cy + 4.5}
+          textAnchor="middle"
+          fontSize="11"
+          fontWeight="700"
+          className="font-sans"
+          style={{ fill: "var(--on-accent)" }}
+        >
+          You
+        </text>
+      </svg>
+    </div>
   );
 }

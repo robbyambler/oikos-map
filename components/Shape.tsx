@@ -1,12 +1,13 @@
 import { Kind, BRANCH_COLORS } from "@/lib/people";
 import { sketchCircle, sketchSquare } from "@/lib/sketch";
 
-// The hand-drawn square or circle, drawn inside an SVG. Used on the map and in Shape below.
+// The hand-drawn square or circle, drawn inside an SVG. Used only on the map.
+// Colors are set with style (not attributes) so CSS variables from the theme work.
 export function SketchShape({
   kind,
   size,
   color,
-  fill = "white",
+  fill = "var(--map-node)",
   strokeWidth = 3,
   seed,
 }: {
@@ -20,11 +21,11 @@ export function SketchShape({
   const shape = kind === "believer" ? sketchSquare(size * 0.92, seed) : sketchCircle(size / 2, seed);
   return (
     <>
-      <path d={shape.fill} fill={fill} />
+      <path d={shape.fill} style={{ fill }} />
       <path
         d={shape.stroke}
         fill="none"
-        stroke={color}
+        style={{ stroke: color }}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -33,69 +34,60 @@ export function SketchShape({
   );
 }
 
-// A small square or circle used in the legend, list, and buttons.
+// A small, clean square or circle used in the legend, list, forms, and pages.
 export default function Shape({
   kind,
   color = "currentColor",
   size = 16,
-  seed = kind,
+  filled = false,
 }: {
   kind: Kind;
   color?: string;
   size?: number;
-  seed?: string;
+  filled?: boolean;
 }) {
+  const style = { stroke: color, fill: filled ? color : "var(--surface)" };
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="-12 -12 24 24"
-      aria-hidden="true"
-      className="inline-block shrink-0 overflow-visible"
-    >
-      <SketchShape kind={kind} size={17} color={color} strokeWidth={2.6} seed={seed} />
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className="inline-block shrink-0">
+      {kind === "believer" ? (
+        <rect x="3.5" y="3.5" width="17" height="17" rx="3" strokeWidth="2.5" style={style} />
+      ) : (
+        <circle cx="12" cy="12" r="8.75" strokeWidth="2.5" style={style} />
+      )}
     </svg>
   );
 }
 
-// A filled hand-drawn circle with a letter in it (used on the BLESS card).
-export function LetterDot({ letter, color, seed }: { letter: string; color: string; seed: string }) {
-  const shape = sketchCircle(13, seed);
+// A round badge with a letter or number in it (BLESS steps, numbered steps).
+export function LetterDot({ letter, color = "var(--accent)" }: { letter: string; color?: string }) {
   return (
-    <svg width="30" height="30" viewBox="-15 -15 30 30" aria-hidden="true" className="shrink-0 overflow-visible">
-      <path d={shape.fill} fill={color} />
-      <path d={shape.stroke} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />
-      <text y="6" textAnchor="middle" fill="white" fontSize="17" fontWeight="700" className="font-hand">
-        {letter}
-      </text>
-    </svg>
+    <span
+      aria-hidden="true"
+      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full font-display text-[0.95rem] font-bold leading-none"
+      style={{ background: `color-mix(in srgb, ${color} 14%, var(--surface))`, color }}
+    >
+      {letter}
+    </span>
   );
 }
 
 export function Legend() {
   return (
-    <ul className="legend flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-soft">
+    <ul className="legend flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-muted">
       <li className="flex items-center gap-2">
-        <Shape kind="believer" color="#1F2A2E" size={18} />
+        <Shape kind="believer" color="var(--ink)" size={18} />
         Square: follows Jesus (someone to equip)
       </li>
       <li className="flex items-center gap-2">
-        <Shape kind="nonbeliever" color="#1F2A2E" size={18} />
+        <Shape kind="nonbeliever" color="var(--ink)" size={18} />
         Circle: doesn&apos;t yet follow Jesus
       </li>
       <li className="flex items-center gap-2">
-        <svg width="34" height="16" viewBox="0 0 34 16" aria-hidden="true" className="shrink-0">
-          {BRANCH_COLORS.slice(0, 3).map((c, i) => (
-            <path
-              key={c}
-              d={`M${3 + i * 11} ${13 - i} C${5 + i * 11} 9 ${4 + i * 11} 6 ${7 + i * 11} ${2 + i}`}
-              stroke={c}
-              strokeWidth="3.2"
-              strokeLinecap="round"
-              fill="none"
-            />
+        <span className="flex gap-1" aria-hidden="true">
+          {BRANCH_COLORS.slice(0, 4).map((c) => (
+            <span key={c} className="h-3.5 w-1.5 rounded-full" style={{ background: c }} />
           ))}
-        </svg>
+        </span>
         Each color is one branch of your map
       </li>
     </ul>

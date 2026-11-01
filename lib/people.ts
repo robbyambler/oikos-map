@@ -11,19 +11,21 @@ export type Person = {
 };
 
 // Branch colors: each person in your first ring gets one, and everyone
-// connected through them shares it. Dark enough to read on white and in print.
+// connected through them shares it. The real colors live in app/globals.css
+// (--branch-1 to --branch-8) so each one has a light-theme and a dark-theme
+// shade. Printing always uses the light, ink-friendly shades.
 export const BRANCH_COLORS = [
-  "#2F7A78", // teal
-  "#8A3B6E", // plum
-  "#9A6400", // ochre
-  "#3B5BA9", // blue
-  "#B0413E", // brick
-  "#4C7A2A", // green
-  "#6A4FA3", // violet
-  "#7A5230", // brown
+  "var(--branch-1)", // teal
+  "var(--branch-2)", // plum
+  "var(--branch-3)", // ochre
+  "var(--branch-4)", // blue
+  "var(--branch-5)", // brick
+  "var(--branch-6)", // green
+  "var(--branch-7)", // violet
+  "var(--branch-8)", // brown
 ];
 
-export const ROOT_COLOR = "#1F2A2E";
+export const ROOT_COLOR = "var(--map-root)";
 
 export function makeId(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);

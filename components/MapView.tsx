@@ -42,7 +42,7 @@ export default function MapView({ people, selectedId, onSelect, fit, title }: Pr
             className="map-line"
             d={sketchLine([parent.x, parent.y], [x, y], person.id)}
             fill="none"
-            stroke={branchColor(people, person)}
+            style={{ stroke: branchColor(people, person) }}
             strokeOpacity="0.55"
             strokeWidth={width}
             strokeLinecap="round"
@@ -83,26 +83,26 @@ export default function MapView({ people, selectedId, onSelect, fit, title }: Pr
               fill="none"
               strokeWidth="2.5"
               strokeLinecap="round"
-              stroke={selected ? color : "transparent"}
+              style={{ stroke: selected ? color : "transparent" }}
             />
             <g transform={`rotate(${tilt.toFixed(1)})`}>
               <SketchShape
                 kind={shapeOf(person)}
                 size={size}
                 color={color}
-                fill={selected || isRoot ? color : "white"}
+                fill={selected || isRoot ? color : "var(--map-node)"}
                 strokeWidth={isRoot ? 4 : 3.4}
                 seed={person.id}
               />
             </g>
-            {/* A soft patch of paper behind the name, so lines never run through it */}
+            {/* A soft patch of the map's background behind the name, so lines never run through it */}
             <rect
               x={-labelWidthOf(p) / 2}
               y={size / 2 + 4}
               width={labelWidthOf(p)}
               height={fontSize * 1.25}
               rx={fontSize * 0.5}
-              fill="white"
+              style={{ fill: "var(--map-label-halo)" }}
               fillOpacity="0.9"
             />
             <text
@@ -111,8 +111,7 @@ export default function MapView({ people, selectedId, onSelect, fit, title }: Pr
               className="map-label"
               fontSize={fontSize}
               fontWeight={700}
-              fill="#1F2A2E"
-              stroke="white"
+              style={{ fill: "var(--map-label)", stroke: "var(--map-label-halo)" }}
               strokeWidth="4"
               paintOrder="stroke"
               strokeLinejoin="round"

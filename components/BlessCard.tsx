@@ -4,7 +4,7 @@ import { LetterDot } from "./Shape";
 
 // "Sarah" -> "Sarah's", "Chris" -> "Chris's", "Mom's" -> "Mom's" (already possessive).
 function possessive(name: string) {
-  return /['\u2019]s$/i.test(name) ? name : `${name}'s`;
+  return /['’]s$/i.test(name) ? name : `${name}'s`;
 }
 
 const STEPS = [
@@ -20,25 +20,25 @@ export default function BlessCard({ person, color }: { person: Person; color: st
   // Use the whole name so labels like "Mom's friend" read correctly.
   const first = person.name.trim();
   return (
-    <section aria-labelledby="bless-heading" className="sketch-card bg-white p-4">
-      <h3 id="bless-heading" className="font-display text-xl font-bold">
+    <section aria-labelledby="bless-heading" className="card p-5">
+      <h3 id="bless-heading" className="font-display text-xl font-bold tracking-tight">
         A few ways to bless {first}
       </h3>
       {person.kind === "believer" && (
-        <p className="mt-1 text-sm text-ink-soft">
+        <p className="mt-1.5 text-[0.95rem] leading-relaxed text-ink-muted">
           {first} already follows Jesus. Train and encourage them, and help them map their own oikos, so they can start reaching their people right away.
         </p>
       )}
-      <ol className="mt-3 space-y-2">
+      <ol className="mt-4 space-y-3">
         {STEPS.map((step, i) => (
           <li key={i} className="flex items-start gap-3">
-            <LetterDot letter={step.letter} color={color} seed={`${person.id}:${i}`} />
-            <span className="pt-0.5 text-[0.95rem] leading-snug">
+            <LetterDot letter={step.letter} color={color} />
+            <span className="pt-1 text-[0.95rem] leading-snug">
               <strong>{step.word}.</strong> {step.text(first)}
               {i === STEPS.length - 1 && (
                 <>
                   {" "}
-                  <Link href="/share" className="no-print font-semibold text-ink underline underline-offset-2">
+                  <Link href="/share" className="link no-print">
                     What to share
                   </Link>
                 </>

@@ -1,104 +1,407 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------
+   Design tokens
+   Every color in the app comes from these variables. The light theme is
+   defined on :root, the dark theme on [data-theme="dark"]. A tiny script in
+   app/layout.tsx sets data-theme before the page paints (see lib/theme.ts).
+   The dark block only applies on screens, so printing is always light.
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --canvas: #f3f4f1; /* page background */
+  --surface: #ffffff; /* cards, dialogs, the map */
+  --sunken: #eaece7; /* quiet panels, hover fills */
+  --line: #d8dcd5; /* hairlines */
+  --line-strong: #a9b0a8; /* input borders, outlines */
+
+  /* Text */
+  --ink: #18211e;
+  --ink-muted: #505b56;
+
+  /* The one accent: a deep evergreen */
+  --accent: #1d5a45;
+  --accent-strong: #154535; /* hover / pressed */
+  --on-accent: #ffffff;
+  --accent-soft: #e1ede6; /* tinted callouts, selected rows */
+  --accent-ink: #1d5a45; /* accent used as text */
+
+  /* Warnings and destructive actions */
+  --danger: #a12f2a;
+  --danger-strong: #7f221e;
+  --on-danger: #ffffff;
+  --danger-soft: #f8e7e4;
+
+  --focus: #1d5a45;
+
+  /* The map */
+  --map-bg: #ffffff;
+  --map-node: #ffffff; /* inside of an unselected shape */
+  --map-label: #18211e;
+  --map-label-halo: #ffffff;
+  --map-root: #1f2a2e; /* you, in the middle */
+
+  /* Branch colors: dark enough for white paper and ink-friendly printing */
+  --branch-1: #2f7a78; /* teal */
+  --branch-2: #8a3b6e; /* plum */
+  --branch-3: #9a6400; /* ochre */
+  --branch-4: #3b5ba9; /* blue */
+  --branch-5: #b0413e; /* brick */
+  --branch-6: #4c7a2a; /* green */
+  --branch-7: #6a4fa3; /* violet */
+  --branch-8: #7a5230; /* brown */
+
+  --shadow-card: 0 1px 2px rgb(24 33 30 / 0.05), 0 4px 16px -6px rgb(24 33 30 / 0.08);
+  --shadow-dialog: 0 2px 6px rgb(24 33 30 / 0.08), 0 24px 60px -12px rgb(24 33 30 / 0.3);
+}
+
+@media screen {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --canvas: #101513;
+    --surface: #181f1c;
+    --sunken: #212925;
+    --line: #2c3631;
+    --line-strong: #56625c;
+
+    --ink: #e7ece9;
+    --ink-muted: #a5b0aa;
+
+    --accent: #7fcca8;
+    --accent-strong: #9adbbd;
+    --on-accent: #0c1f17;
+    --accent-soft: #1b3229;
+    --accent-ink: #8fd5b4;
+
+    --danger: #f0867c;
+    --danger-strong: #f6a79f;
+    --on-danger: #2a0d0a;
+    --danger-soft: #3a1e1b;
+
+    --focus: #8fd5b4;
+
+    --map-bg: #181f1c;
+    --map-node: #181f1c;
+    --map-label: #e7ece9;
+    --map-label-halo: #181f1c;
+    --map-root: #cdd7d2;
+
+    /* Lighter versions of the same hues, so each branch reads on dark */
+    --branch-1: #5fc0bb;
+    --branch-2: #dd8fc4;
+    --branch-3: #e2ab4c;
+    --branch-4: #8eaaf0;
+    --branch-5: #f08c86;
+    --branch-6: #93c86f;
+    --branch-7: #b49ff0;
+    --branch-8: #cfa37c;
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px -6px rgb(0 0 0 / 0.4);
+    --shadow-dialog: 0 2px 6px rgb(0 0 0 / 0.3), 0 24px 60px -12px rgb(0 0 0 / 0.6);
+  }
+}
+
+/* Let Tailwind utilities use the tokens: bg-surface, text-ink-muted, etc. */
 @theme inline {
-  --color-paper: #f1f4ef;
-  --color-paper-deep: #e4eae3;
-  --color-mist: #e9eeea;
-  --color-line: #c9d2cc;
-  --color-ink: #1f2a2e;
-  --color-ink-soft: #4a5a5f;
-  --color-pencil: #5d6c70;
-  --color-focus: #2b5fd9;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-focus: var(--focus);
   --font-sans: var(--font-body);
-  --font-display: var(--font-hand);
+  --font-display: var(--font-heading);
+  --shadow-card: var(--shadow-card);
+  --shadow-dialog: var(--shadow-dialog);
+}
+
+html {
+  background: var(--canvas);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: var(--canvas);
+  color: var(--ink);
   font-family: var(--font-body), system-ui, sans-serif;
+  font-feature-settings: "kern";
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+input,
+textarea {
+  caret-color: var(--accent);
 }
 
 /* Clear keyboard focus everywhere */
 :focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-input:focus-visible {
-  outline-offset: 0;
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 .map-node:focus {
   outline: none;
 }
 .map-node:focus-visible .map-halo {
-  stroke: var(--color-focus);
+  stroke: var(--focus) !important;
   stroke-dasharray: 5 4;
 }
 
-/* Hand-drawn look. Uneven corner radii make boxes and buttons look sketched
-   with a pen instead of ruled. Plain CSS, so it prints the same as on screen. */
+/* Plain text links */
+.link {
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  transition: text-decoration-color 150ms ease;
+}
+.link:hover {
+  text-decoration-color: currentColor;
+}
+
 @layer components {
-  .sketch-card {
-    border: 2px solid var(--color-pencil);
-    border-radius: 26px 9px 22px 12px / 11px 22px 9px 26px;
+  /* ---------- Buttons ----------
+     One base (.btn) plus a variant: primary, secondary, ghost, danger.
+     Every button is at least 44px tall so it is easy to tap. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.5rem 1.1rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease,
+      box-shadow 150ms ease,
+      transform 100ms ease;
   }
-  .sketch-pill {
-    border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
   }
-  .sketch-box {
-    border-radius: 16px 6px 14px 7px / 7px 14px 6px 16px;
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
+  .btn svg {
+    flex-shrink: 0;
+  }
+  .btn-sm {
+    font-size: 0.9375rem;
+    padding: 0.4rem 0.85rem;
+  }
+  .btn-lg {
+    min-height: 52px;
+    padding: 0.75rem 1.75rem;
+    font-size: 1.125rem;
+    border-radius: 12px;
+  }
+
   .btn-primary {
-    @apply border-2 border-ink bg-ink px-5 py-2.5 font-semibold text-white hover:bg-[#33454b];
+    background: var(--accent);
+    color: var(--on-accent);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
   }
-  .btn-quiet {
-    @apply border-2 border-ink-soft bg-white px-4 py-2 font-semibold text-ink hover:border-ink;
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-strong);
   }
-  .btn-primary,
-  .btn-quiet {
-    border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
-    transition: transform 120ms ease;
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--ink);
+    border-color: var(--line-strong);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
   }
-  .btn-primary:hover,
-  .btn-quiet:hover {
-    transform: rotate(-0.6deg);
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--sunken);
+    border-color: var(--ink-muted);
   }
-  @media (prefers-reduced-motion: reduce) {
-    .btn-primary:hover,
-    .btn-quiet:hover {
-      transform: none;
-    }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--sunken);
+  }
+
+  .btn-danger {
+    background: var(--surface);
+    color: var(--danger);
+    border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: var(--on-danger);
+  }
+
+  /* A row of two or three choices where one is on (Map / List, theme) */
+  .segmented {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 12px;
+    background: var(--sunken);
+    border: 1px solid var(--line);
+  }
+  .segmented > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease,
+      box-shadow 150ms ease;
+  }
+  .segmented > button:hover {
+    color: var(--ink);
+  }
+  .segmented > button[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.1),
+      0 0 0 1px var(--line);
+  }
+
+  /* Cards and panels */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+  }
+  .callout {
+    background: var(--accent-soft);
+    border-radius: 12px;
+  }
+  .notice {
+    background: var(--danger-soft);
+    color: var(--ink);
+    border-radius: 10px;
+  }
+
+  /* Form fields */
+  .field {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 1.0625rem;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+  .field:hover {
+    border-color: var(--ink-muted);
+  }
+  .field:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
   }
 }
 
-/* A pen-drawn wavy line under the header. */
-.squiggle-bottom {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='8'%3E%3Cpath d='M0 4 C10 1 18 7 30 4 S50 2 60 4' stroke='%23a3aea9' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-position: bottom left;
-  background-size: 60px 8px;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
 }
 
-.font-hand,
+/* Handwriting is kept for the names on the map only. */
 .map-label {
   font-family: var(--font-hand), "Comic Sans MS", cursive;
 }
 
-/* A wavy, pen-drawn line down the left side of each branch in the list view.
-   The line takes its color from the branch (set with the CSS color property). */
+/* A thin guide line down each branch in the list view.
+   It takes its color from the branch (set with the CSS color property). */
 .branch-line {
   position: relative;
 }
 .branch-line::before {
   content: "";
   position: absolute;
-  left: -3px;
-  top: 2px;
-  bottom: 6px;
-  width: 6px;
+  left: 0;
+  top: 4px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 2px;
   background: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='36'%3E%3Cpath d='M3 0 C5.5 9 0.5 18 3 27 C4.5 32 3.5 34 3 36' stroke='black' stroke-width='2.2' fill='none'/%3E%3C/svg%3E") repeat-y;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='36'%3E%3Cpath d='M3 0 C5.5 9 0.5 18 3 27 C4.5 32 3.5 34 3 36' stroke='black' stroke-width='2.2' fill='none'/%3E%3C/svg%3E") repeat-y;
+  opacity: 0.55;
+}
+
+/* Dialog backdrop and entrance */
+.dialog::backdrop {
+  background: rgb(10 14 12 / 0.55);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dialog[open] {
+    animation: dialog-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
 }
 
 .print-only {
@@ -110,6 +413,7 @@ input:focus-visible {
     size: letter portrait;
     margin: 0.5in;
   }
+  html,
   body {
     background: white;
   }
@@ -135,6 +439,9 @@ input:focus-visible {
     margin: 0.15in 0;
     break-inside: avoid;
   }
+  .card {
+    box-shadow: none;
+  }
 }
 
 /* Printing the QR code page from "Share this app": show only the dialog. */
@@ -146,6 +453,7 @@ input:focus-visible {
     position: static;
     margin: 0 auto;
     border: none;
+    box-shadow: none;
     width: 6.5in;
     max-width: 100%;
     text-align: center;

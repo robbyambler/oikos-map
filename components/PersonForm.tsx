@@ -48,34 +48,47 @@ export default function PersonForm({
     setError("");
   }
 
-  const option = (value: Kind, label: string) => (
-    <label
-      className={`sketch-box flex flex-1 cursor-pointer items-center gap-3 border-2 px-3 py-3 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus ${
-        kind === value ? "border-ink bg-white" : "border-line bg-white/60 hover:border-ink-soft"
-      }`}
-    >
-      <input
-        type="radio"
-        name={id + "-kind"}
-        value={value}
-        checked={kind === value}
-        onChange={() => setKind(value)}
-        className="sr-only"
-      />
-      <Shape kind={value} color="#1F2A2E" size={28} />
-      <span className="leading-tight">
-        <span className="block font-semibold">{value === "believer" ? "Square" : "Circle"}</span>
-        <span className="text-sm text-ink-soft">{label}</span>
-      </span>
-    </label>
-  );
+  const option = (value: Kind, label: string) => {
+    const on = kind === value;
+    return (
+      <label
+        className={`flex flex-1 cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-3 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus ${
+          on
+            ? "border-accent bg-accent-soft shadow-[inset_0_0_0_1px_var(--accent)]"
+            : "border-line-strong bg-surface hover:border-ink-muted"
+        }`}
+      >
+        <input
+          type="radio"
+          name={id + "-kind"}
+          value={value}
+          checked={on}
+          onChange={() => setKind(value)}
+          className="sr-only"
+        />
+        <Shape kind={value} color="var(--ink)" size={26} />
+        <span className="flex-1 leading-tight">
+          <span className="block font-semibold">{value === "believer" ? "Square" : "Circle"}</span>
+          <span className="text-sm text-ink-muted">{label}</span>
+        </span>
+        <span
+          aria-hidden="true"
+          className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 ${
+            on ? "border-accent" : "border-line-strong"
+          }`}
+        >
+          {on && <span className="size-2.5 rounded-full bg-accent" />}
+        </span>
+      </label>
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-      <h3 className="font-display text-2xl font-bold">{heading}</h3>
+      <h3 className="font-display text-xl font-bold tracking-tight">{heading}</h3>
       {hint}
       <div>
-        <label htmlFor={id + "-name"} className="mb-1 block font-semibold">
+        <label htmlFor={id + "-name"} className="mb-1.5 block font-semibold">
           {nameLabel}
         </label>
         <input
@@ -86,29 +99,31 @@ export default function PersonForm({
           autoComplete="off"
           maxLength={60}
           onChange={(e) => setName(e.target.value)}
-          className="sketch-box w-full border-2 border-pencil bg-white px-3 py-2.5 text-lg focus:border-ink"
+          aria-invalid={error && !name.trim() ? true : undefined}
+          aria-describedby={error ? id + "-error" : undefined}
+          className="field"
         />
       </div>
       {askKind && (
         <fieldset>
-          <legend className="mb-1 font-semibold">Square or circle?</legend>
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <legend className="mb-1.5 font-semibold">Square or circle?</legend>
+          <div className="flex flex-col gap-2">
             {option("believer", believerLabel)}
             {option("nonbeliever", nonbelieverLabel)}
           </div>
         </fieldset>
       )}
       {error && (
-        <p role="alert" className="text-sm font-semibold text-[#9B2C2C]">
+        <p id={id + "-error"} role="alert" className="text-sm font-semibold text-danger">
           {error}
         </p>
       )}
-      <div className="flex flex-wrap gap-2">
-        <button type="submit" className="btn-primary">
+      <div className="flex flex-wrap gap-2 pt-1">
+        <button type="submit" className="btn btn-primary">
           {submitLabel}
         </button>
         {onCancel && (
-          <button type="button" onClick={onCancel} className="btn-quiet">
+          <button type="button" onClick={onCancel} className="btn btn-secondary">
             Cancel
           </button>
         )}

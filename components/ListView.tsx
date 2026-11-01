@@ -24,24 +24,20 @@ export default function ListView({ people, selectedId, onSelect }: Props) {
           type="button"
           onClick={() => onSelect(person.id)}
           aria-pressed={selected}
-          className={`sketch-box flex w-full items-center gap-3 px-3 text-ink py-2 text-left hover:bg-mist ${
-            selected ? "bg-mist font-semibold" : ""
+          className={`flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-ink transition-colors ${
+            selected ? "bg-accent-soft font-semibold" : "hover:bg-sunken"
           }`}
         >
-          <Shape kind={shapeOf(person)} color={color} size={22} seed={person.id} />
-          <span className="flex-1">
+          <Shape kind={shapeOf(person)} color={color} size={20} filled={isRoot} />
+          <span className="min-w-0 flex-1 break-words">
             {person.name}
-            {isRoot && <span className="text-ink-soft"> (you)</span>}
+            {isRoot && <span className="font-normal text-ink-muted"> (you)</span>}
             {!isRoot && <span className="sr-only">, {describe(person)}</span>}
           </span>
-          {kids.length > 0 && (
-            <span className="text-sm text-ink-soft">
-              {kids.length} connected
-            </span>
-          )}
+          {kids.length > 0 && <span className="shrink-0 text-sm font-normal text-ink-muted">{kids.length} connected</span>}
         </button>
         {kids.length > 0 && (
-          <ul className="branch-line ml-5 pl-3" style={{ color: isRoot ? "#9AA7A2" : color }}>
+          <ul className="branch-line ml-[21px] pl-3" style={{ color: isRoot ? "var(--line-strong)" : color }}>
             {kids.map((kid) => renderPerson(kid, false))}
           </ul>
         )}
