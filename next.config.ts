@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Static site for GitHub Pages, served from robbyambler.github.io/Oikos-map
+  // Static site for GitHub Pages, served from robbyambler.github.io/oikos-map
   output: "export",
-  basePath: process.env.NODE_ENV === "production" ? "/Oikos-map" : "",
+  basePath: process.env.NODE_ENV === "production" ? "/oikos-map" : "",
   images: { unoptimized: true },
   trailingSlash: true,
   turbopack: {

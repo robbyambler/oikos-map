@@ -4,7 +4,7 @@ A simple web app for building your "oikos" (household) map: the people in your l
 
 Everything is saved in your own browser. There are no accounts, no tracking, and nothing is sent anywhere.
 
-**Live site:** https://robbyambler.github.io/Oikos-map/
+**Live site:** https://robbyambler.github.io/oikos-map/
 
 ## Run it locally
 

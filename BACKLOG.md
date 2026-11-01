@@ -38,7 +38,7 @@ A simple web app where a visitor builds their oikos (household) map: the people 
 - [x] Compact, clustered map like the Gospel Catalysts network map: short lines, each branch in its own wedge, each person's people clustered close by; fit mode never enlarges a small map
 - [x] You (the center) are always a circle: no square/circle question when adding or editing yourself; older saved maps still load
 - [x] Hand-drawn, compact map with no rings; you are always a circle
-- [x] Publish to GitHub Pages at robbyambler.github.io/Oikos-map (auto-deploys on push to main)
+- [x] Publish to GitHub Pages at robbyambler.github.io/oikos-map (auto-deploys on push to main)
 - [x] Test on a real phone
 - [x] Fix BLESS card possessive bug (now uses the full name and handles names already ending in 's)
 - [x] Save a copy of the map as a file (oikos-map.json) and open a saved copy, with strict checks on the file and a confirm before replacing a map
