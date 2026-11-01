@@ -136,3 +136,22 @@ input:focus-visible {
     break-inside: avoid;
   }
 }
+
+/* Printing the QR code page from "Share this app": show only the dialog. */
+@media print {
+  html.printing-qr body > *:not(:has(.qr-dialog)):not(.qr-dialog) {
+    display: none !important;
+  }
+  html.printing-qr .qr-dialog {
+    position: static;
+    margin: 0 auto;
+    border: none;
+    width: 6.5in;
+    max-width: 100%;
+    text-align: center;
+  }
+  html.printing-qr .qr-code {
+    max-width: 5in;
+    margin: 0 auto;
+  }
+}

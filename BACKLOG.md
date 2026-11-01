@@ -44,3 +44,4 @@ A simple web app where a visitor builds their oikos (household) map: the people 
 - [x] Save a copy of the map as a file (oikos-map.json) and open a saved copy, with strict checks on the file and a confirm before replacing a map
 - [x] "How it works" tutorial page (/learn) with five short steps and an example map, linked from the welcome screen and the toolbar
 - [x] "What to share" page (/share): original three-circles walkthrough with a hand-drawn diagram that builds step by step, your-story prompt, practice and let-go notes, credit to Jimmy Scroggins and NAMB, World English Bible verses; all wording in lib/shareContent.ts; linked from /learn, the BLESS card, the toolbar, and the welcome screen
+- [x] "Share this app": a Share button (phone share sheet, or copies the link) and a printable QR code, on the welcome screen and the toolbar; always the plain app link, never any map data; wording in lib/appShareContent.ts, link in lib/appUrl.ts

@@ -20,6 +20,7 @@ import MapView from "./MapView";
 import ListView from "./ListView";
 import PersonForm from "./PersonForm";
 import BlessCard from "./BlessCard";
+import ShareApp from "./ShareApp";
 import Shape, { Legend, SketchShape } from "./Shape";
 
 type Mode = "view" | "add" | "edit";
@@ -217,6 +218,7 @@ export default function OikosApp() {
           <Link href="/share" className="font-semibold text-ink underline underline-offset-2">
             What do I say? See a simple way to share
           </Link>
+          <ShareApp />
         </div>
 
         <div className="sketch-card mt-10 bg-white p-5 sm:p-7">
@@ -306,6 +308,7 @@ export default function OikosApp() {
               <Link href="/share" className="text-sm font-semibold text-ink underline underline-offset-2">
                 What to share
               </Link>
+              <ShareApp small />
             </div>
           </div>
           {fileError && <div className="mx-auto mt-3 max-w-6xl">{fileErrorNote}</div>}
