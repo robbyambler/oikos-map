@@ -375,7 +375,9 @@ export default function OikosApp() {
               Open a saved copy
             </button>
             {filePicker}
-            <p className="px-2 text-sm text-ink-muted">The file stays on your device.</p>
+            <p className="px-2 text-sm text-ink-muted">
+              The file stays on your device. It&apos;s plain, readable text, so keep it somewhere private.
+            </p>
             <div className="sm:ml-auto">
               <ShareApp small />
             </div>
