@@ -27,6 +27,12 @@ export const BRANCH_COLORS = [
 
 export const ROOT_COLOR = "var(--map-root)";
 
+// Limits that keep the map quick to draw on any phone. Opening a saved copy and
+// adding people in the app both respect them.
+export const MAX_PEOPLE = 300; // everyone on the map, including you
+export const MAX_DEPTH = 12; // how many steps out from you someone can be
+export const MAX_NAME = 60; // characters in a name
+
 export function makeId(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }

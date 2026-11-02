@@ -60,10 +60,15 @@ function boxOf(p: PlacedPerson) {
   return { cx: p.x, cy: p.y + (top + bottom) / 2, w: width, h: bottom - top + PAD };
 }
 
-function leafCount(people: Person[], id: string): number {
+// How many people sit at the outer edge of this person's branch. Answers are
+// remembered in `seen` so each person is only counted once per layout.
+function leafCount(people: Person[], id: string, seen: Map<string, number>): number {
+  const known = seen.get(id);
+  if (known !== undefined) return known;
   const kids = childrenOf(people, id);
-  if (kids.length === 0) return 1;
-  return kids.reduce((sum, kid) => sum + leafCount(people, kid.id), 0);
+  const count = kids.length === 0 ? 1 : kids.reduce((sum, kid) => sum + leafCount(people, kid.id, seen), 0);
+  seen.set(id, count);
+  return count;
 }
 
 // Angle difference, wrapped to -π..π.
@@ -92,15 +97,16 @@ function computeLayout(people: Person[]): Layout {
   // which branch wedge they belong to.
   const slices = new Map<string, { start: number; end: number; depth: number }>();
   const wedgeOf = new Map<string, { mid: number; half: number }>();
+  const leaves = new Map<string, number>();
   function assign(id: string, start: number, end: number, depth: number, wedge?: { mid: number; half: number }) {
     slices.set(id, { start, end, depth });
     if (depth === 1) wedge = { mid: (start + end) / 2, half: (end - start) / 2 };
     if (wedge) wedgeOf.set(id, wedge);
     const kids = childrenOf(people, id);
-    const total = kids.reduce((sum, k) => sum + leafCount(people, k.id), 0);
+    const total = kids.reduce((sum, k) => sum + leafCount(people, k.id, leaves), 0);
     let cursor = start;
     for (const kid of kids) {
-      const share = ((end - start) * leafCount(people, kid.id)) / total;
+      const share = ((end - start) * leafCount(people, kid.id, leaves)) / total;
       assign(kid.id, cursor, cursor + share, depth + 1, wedge);
       cursor += share;
     }

@@ -8,12 +8,10 @@
 // every person carefully and refuse the whole file if anything is off, so a bad
 // file can never break or half-replace someone's map.
 
-import { Kind, Person } from "./people";
+import { Kind, MAX_DEPTH, MAX_NAME, MAX_PEOPLE, Person } from "./people";
 
 const APP = "oikos-map";
 const VERSION = 1;
-const MAX_PEOPLE = 2000;
-const MAX_NAME = 100;
 const MAX_ID = 100;
 
 export const FILE_NAME = "oikos-map.json";
@@ -113,19 +111,26 @@ export function readBackup(text: string): ReadResult {
   }
 
   // Everyone must trace back to you. Walking out from you and reaching every
-  // person proves there are no loops (A connected to B connected to A).
+  // person proves there are no loops (A connected to B connected to A). On the
+  // way, count how many steps out each person is.
   const kids = new Map<string, string[]>();
   for (const p of people) {
     if (p.parentId !== null) kids.set(p.parentId, [...(kids.get(p.parentId) ?? []), p.id]);
   }
   const reached = new Set<string>([roots[0].id]);
-  const queue = [roots[0].id];
+  const queue: { id: string; depth: number }[] = [{ id: roots[0].id, depth: 0 }];
   while (queue.length > 0) {
-    const id = queue.pop()!;
+    const { id, depth } = queue.pop()!;
+    if (depth > MAX_DEPTH) {
+      return {
+        ok: false,
+        message: `That map goes more than ${MAX_DEPTH} steps out from you, which is more than Oikos Map can open.`,
+      };
+    }
     for (const kid of kids.get(id) ?? []) {
       if (!reached.has(kid)) {
         reached.add(kid);
-        queue.push(kid);
+        queue.push({ id: kid, depth: depth + 1 });
       }
     }
   }

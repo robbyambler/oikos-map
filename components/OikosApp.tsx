@@ -5,10 +5,13 @@ import Link from "next/link";
 import {
   BRANCH_COLORS,
   Kind,
+  MAX_DEPTH,
+  MAX_PEOPLE,
   Person,
   ROOT_COLOR,
   branchColor,
   childrenOf,
+  depthOf,
   describe,
   descendantsOf,
   findRoot,
@@ -88,8 +91,20 @@ export default function OikosApp() {
     setMode("add");
   }
 
+  // The map stays quick to draw only up to a point, so adding has limits.
+  // Returns a friendly reason when no one more can be added here, or "" if they can.
+  function addLimit(): string {
+    if (people.length >= MAX_PEOPLE) {
+      return `Your map has ${MAX_PEOPLE} people, which is as many as Oikos Map can hold. That's a lot of people to pray for!`;
+    }
+    if (selected && depthOf(people, selected) >= MAX_DEPTH) {
+      return `${selected.name} is ${MAX_DEPTH} steps out from you, which is as far as the map can go. Try adding people closer in.`;
+    }
+    return "";
+  }
+
   function addPerson(name: string, kind: Kind) {
-    if (!selected) return;
+    if (!selected || addLimit()) return;
     setPeople([...people, { id: makeId(), name, kind, parentId: selected.id }]);
     setAnnouncement(`${name} added, connected to ${selected.name}.`);
     // Stay in "add" mode so it's quick to add several people in a row.
@@ -287,6 +302,7 @@ export default function OikosApp() {
   const isRoot = selected?.parentId === null;
   const others = people.length - 1;
   const connected = selected ? childrenOf(people, selected.id).length : 0;
+  const limitNote = addLimit();
 
   return (
     <>
@@ -404,7 +420,18 @@ export default function OikosApp() {
                   </div>
                 )}
 
-                {mode === "add" && (
+                {mode === "add" && limitNote && (
+                  <div className="mt-5 space-y-3 border-t border-line pt-5">
+                    <p role="status" className="notice px-3.5 py-2.5 text-sm">
+                      {limitNote}
+                    </p>
+                    <button type="button" onClick={() => setMode("view")} className="btn btn-secondary">
+                      Done
+                    </button>
+                  </div>
+                )}
+
+                {mode === "add" && !limitNote && (
                   <div className="mt-5 border-t border-line pt-5">
                     <PersonForm
                       key={"add-" + selected.id}

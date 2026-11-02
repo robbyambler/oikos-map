@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Kind } from "@/lib/people";
+import { Kind, MAX_NAME } from "@/lib/people";
 import Shape from "./Shape";
 
 type Props = {
@@ -97,7 +97,7 @@ export default function PersonForm({
           value={name}
           autoFocus={autoFocus}
           autoComplete="off"
-          maxLength={60}
+          maxLength={MAX_NAME}
           onChange={(e) => setName(e.target.value)}
           aria-invalid={error && !name.trim() ? true : undefined}
           aria-describedby={error ? id + "-error" : undefined}
