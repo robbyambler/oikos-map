@@ -42,3 +42,6 @@ next-env.d.ts
 
 # source PDFs from other organizations (kept locally only)
 /documents/
+
+# Claude Code local settings
+.claude/
