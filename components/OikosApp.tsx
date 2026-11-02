@@ -18,7 +18,7 @@ import {
   makeId,
   shapeOf,
 } from "@/lib/people";
-import { loadPeople, savePeople } from "@/lib/storage";
+import { KEY, LoadStatus, clearCorruptCopy, loadPeople, savePeople } from "@/lib/storage";
 import { downloadBackup, readBackup } from "@/lib/backup";
 import MapView from "./MapView";
 import ListView from "./ListView";
@@ -61,7 +61,7 @@ export default function OikosApp() {
   // saved data right away.
   const [initial] = useState(loadPeople);
   const [people, setPeople] = useState<Person[]>(initial.people);
-  const [storageOk, setStorageOk] = useState(initial.ok);
+  const [storageStatus, setStorageStatus] = useState<LoadStatus>(initial.status);
   const [selectedId, setSelectedId] = useState<string | null>(findRoot(initial.people)?.id ?? null);
   const [mode, setMode] = useState<Mode>("view");
   const [view, setView] = useState<"map" | "list">("map");
@@ -69,11 +69,35 @@ export default function OikosApp() {
   const [announcement, setAnnouncement] = useState("");
   const [fileError, setFileError] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
+  // The list we last read from storage. There's no need to save it straight
+  // back, and if what was stored couldn't be read, saving now would write an
+  // empty map over it before the visitor has changed anything.
+  const fromStorage = useRef(initial.people);
 
   useEffect(() => {
+    if (people === fromStorage.current) return;
     // Saving can fail (e.g. private browsing). We only flag it once.
-    if (!savePeople(people)) setStorageOk(false); // eslint-disable-line react-hooks/set-state-in-effect
+    if (!savePeople(people)) setStorageStatus("blocked"); // eslint-disable-line react-hooks/set-state-in-effect
   }, [people]);
+
+  // If the map changes in another tab, pick up that version here instead of
+  // quietly saving over it later.
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key !== KEY && e.key !== null) return;
+      const latest = loadPeople();
+      if (latest.status !== "ok") return;
+      fromStorage.current = latest.people;
+      setPeople(latest.people);
+      setSelectedId((id) =>
+        latest.people.some((p) => p.id === id) ? id : (findRoot(latest.people)?.id ?? null),
+      );
+      setMode("view");
+      setAnnouncement("Your map was updated in another tab.");
+    }
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   const root = findRoot(people);
   const selected = people.find((p) => p.id === selectedId) ?? root;
@@ -137,6 +161,7 @@ export default function OikosApp() {
   function startOver() {
     if (!window.confirm("Clear your whole map and start over? This can't be undone.")) return;
     setPeople([]);
+    clearCorruptCopy();
     setSelectedId(null);
     setMode("view");
   }
@@ -216,12 +241,18 @@ export default function OikosApp() {
     </p>
   );
 
-  const storageWarning = !storageOk && (
-    <p role="status" className="notice px-3.5 py-2.5 text-sm">
-      This browser isn&apos;t letting us save, so your map will disappear when you close this tab. Print it before you
-      go if you&apos;d like to keep it.
-    </p>
-  );
+  const storageWarning =
+    storageStatus === "blocked" ? (
+      <p role="status" className="notice px-3.5 py-2.5 text-sm">
+        This browser isn&apos;t letting us save, so your map will disappear when you close this tab. Print it before
+        you go if you&apos;d like to keep it.
+      </p>
+    ) : storageStatus === "unreadable" ? (
+      <p role="status" className="notice px-3.5 py-2.5 text-sm">
+        We couldn&apos;t read the map saved in this browser, so you&apos;re starting fresh. We kept a copy of the old
+        one here, just in case.
+      </p>
+    ) : null;
 
   // ---------- Welcome: no one on the map yet ----------
   if (!root) {

@@ -71,7 +71,12 @@ export function readBackup(text: string): ReadResult {
   }
   if (file.version !== VERSION) return { ok: false, message: NOT_A_MAP };
 
-  const list = file.people;
+  return checkPeople(file.people);
+}
+
+// Check a list of people thoroughly: the same rules for a saved file and for
+// the map kept in this browser. Never throws.
+export function checkPeople(list: unknown): ReadResult {
   if (!Array.isArray(list) || list.length === 0) return { ok: false, message: NOT_A_MAP };
   if (list.length > MAX_PEOPLE) {
     return {
