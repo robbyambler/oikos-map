@@ -21,6 +21,7 @@ import MapView from "./MapView";
 import ListView from "./ListView";
 import PersonForm from "./PersonForm";
 import BlessCard from "./BlessCard";
+import EquipCard from "./EquipCard";
 import ShareApp from "./ShareApp";
 import AppBar from "./AppBar";
 import Shape, { Legend } from "./Shape";
@@ -437,7 +438,12 @@ export default function OikosApp() {
                 )}
               </div>
 
-              {!isRoot && mode === "view" && <BlessCard person={selected} color={selectedColor} />}
+              {!isRoot && mode === "view" &&
+                (selected.kind === "believer" ? (
+                  <EquipCard person={selected} color={selectedColor} />
+                ) : (
+                  <BlessCard person={selected} color={selectedColor} />
+                ))}
               {isRoot && mode === "view" && others === 0 && (
                 <p className="px-1 leading-relaxed text-ink-muted">
                   Start with the people closest to you. Later you can add the people in <em>their</em> lives too.

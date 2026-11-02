@@ -24,11 +24,6 @@ export default function BlessCard({ person, color }: { person: Person; color: st
       <h3 id="bless-heading" className="font-display text-xl font-bold tracking-tight">
         A few ways to bless {first}
       </h3>
-      {person.kind === "believer" && (
-        <p className="mt-1.5 text-[0.95rem] leading-relaxed text-ink-muted">
-          {first} already follows Jesus. Train and encourage them, and help them map their own oikos, so they can start reaching their people right away.
-        </p>
-      )}
       <ol className="mt-4 space-y-3">
         {STEPS.map((step, i) => (
           <li key={i} className="flex items-start gap-3">

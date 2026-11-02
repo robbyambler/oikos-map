@@ -135,7 +135,7 @@ export default function LearnPage() {
                 <Shape kind="believer" color="var(--branch-2)" size={22} />
               </span>
               <span>
-                <strong>Square:</strong> someone who already follows Jesus. Train them, and they can start reaching their own oikos right away.
+                <strong>Square:</strong> someone who already follows Jesus. Equip them, and they can start reaching their own oikos right away.
               </span>
             </li>
             <li className="flex items-start gap-3">
@@ -165,7 +165,7 @@ export default function LearnPage() {
         </Step>
 
         <Step n={5} title="Now what?">
-          <p>Pray for the people on your map every day. Then try a few simple steps with one or two of them:</p>
+          <p>Pray for the people on your map every day. Then try a few simple steps with one or two of the circles:</p>
           <ul className="space-y-3">
             {BLESS.map((b, i) => (
               <li key={i} className="flex items-start gap-3">
@@ -185,8 +185,8 @@ export default function LearnPage() {
             ))}
           </ul>
           <p>
-            <strong>Don&apos;t forget the squares.</strong> Believers on your map don&apos;t have to wait. Help them
-            map their own oikos and equip them to share Jesus, so they can begin reaching their people right away.
+            <strong>Don&apos;t forget the squares.</strong> Believers on your map don&apos;t have to wait. Equip them
+            in three steps: share your map with them, teach them to build their own, and begin reaching it together.
           </p>
           <p>No pressure, no script. Just love the people God already gave you.</p>
         </Step>
